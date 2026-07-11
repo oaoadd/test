@@ -1,17 +1,44 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local CoreGui = game:GetService("CoreGui")
+
+local guiParent = nil
+local guiPaths = {
+    game:GetService("CoreGui"),
+    game:GetService("PlayerGui"),
+    game:GetService("StarterGui"),
+    game:GetService("Workspace"),
+    game:GetService("Lighting")
+}
+
+for _, path in ipairs(guiPaths) do
+    if path then
+        guiParent = path
+        break
+    end
+end
+
+if not guiParent then
+    guiParent = game:GetService("CoreGui")
+end
 
 pcall(function()
-    CoreGui:FindFirstChild("KickGUI"):Destroy()
+    for _, obj in ipairs(guiParent:GetChildren()) do
+        if obj.Name == "KickGUI" then
+            obj:Destroy()
+        end
+    end
 end)
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "KickGUI"
-screenGui.Parent = CoreGui
+screenGui.Parent = guiParent
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
+
+if not screenGui.Parent then
+    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+end
 
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
@@ -44,7 +71,7 @@ closeBtn.Size = UDim2.new(0, 28, 0, 28)
 closeBtn.Position = UDim2.new(1, -34, 0, 3)
 closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 closeBtn.BackgroundTransparency = 0.3
-closeBtn.Text = "✕"
+closeBtn.Text = ""
 closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeBtn.TextSize = 20
 closeBtn.Font = Enum.Font.GothamBold
@@ -105,7 +132,7 @@ end)
 kickButton.MouseButton1Click:Connect(function()
     local targetName = playerNameBox.Text
     if targetName == "" or targetName == " " then
-        playerNameBox.PlaceholderText = "⚠"
+        playerNameBox.PlaceholderText = ""
         playerNameBox.PlaceholderColor3 = Color3.fromRGB(255, 80, 80)
         task.wait(1.2)
         playerNameBox.PlaceholderText = ""
@@ -123,7 +150,7 @@ kickButton.MouseButton1Click:Connect(function()
 
     if not targetPlayer then
         playerNameBox.Text = ""
-        playerNameBox.PlaceholderText = "✕"
+        playerNameBox.PlaceholderText = ""
         playerNameBox.PlaceholderColor3 = Color3.fromRGB(255, 80, 80)
         task.wait(1.5)
         playerNameBox.PlaceholderText = ""
@@ -190,10 +217,10 @@ kickButton.MouseButton1Click:Connect(function()
 
     playerNameBox.Text = ""
     if kicked then
-        playerNameBox.PlaceholderText = "✓"
+        playerNameBox.PlaceholderText = ""
         playerNameBox.PlaceholderColor3 = Color3.fromRGB(80, 255, 80)
     else
-        playerNameBox.PlaceholderText = "✕"
+        playerNameBox.PlaceholderText = ""
         playerNameBox.PlaceholderColor3 = Color3.fromRGB(255, 80, 80)
     end
     
@@ -234,3 +261,11 @@ end)
 
 mainFrame.BackgroundTransparency = 1
 TweenService:Create(mainFrame, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
+
+task.wait(1)
+if not screenGui.Parent then
+    local player = game.Players.LocalPlayer
+    if player and player:FindFirstChild("PlayerGui") then
+        screenGui.Parent = player.PlayerGui
+    end
+end
