@@ -1,59 +1,36 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
-local guiParent = nil
-local guiPaths = {
-    game:GetService("CoreGui"),
-    game:GetService("PlayerGui"),
-    game:GetService("StarterGui"),
-    game:GetService("Workspace"),
-    game:GetService("Lighting")
-}
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
 
-for _, path in ipairs(guiPaths) do
-    if path then
-        guiParent = path
-        break
-    end
-end
+-- Создаём BillboardGui (отображается в 3D)
+local billboardGui = Instance.new("BillboardGui")
+billboardGui.Name = "KickGUI"
+billboardGui.Parent = character:WaitForChild("Head")
+billboardGui.Size = UDim2.new(0, 320, 0, 140)
+billboardGui.StudsOffset = Vector3.new(0, 3, 0)
+billboardGui.MaxDistance = 50
+billboardGui.AlwaysOnTop = true
+billboardGui.Enabled = true
 
-if not guiParent then
-    guiParent = game:GetService("CoreGui")
-end
-
-pcall(function()
-    for _, obj in ipairs(guiParent:GetChildren()) do
-        if obj.Name == "KickGUI" then
-            obj:Destroy()
-        end
-    end
-end)
-
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "KickGUI"
-screenGui.Parent = guiParent
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
-
-if not screenGui.Parent then
-    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-end
-
+-- Главное окно
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 320, 0, 140)
-mainFrame.Position = UDim2.new(0.5, -160, 0.5, -70)
+mainFrame.Size = UDim2.new(1, 0, 1, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
 mainFrame.BackgroundTransparency = 0
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
-mainFrame.Parent = screenGui
+mainFrame.Parent = billboardGui
 
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 10)
 corner.Parent = mainFrame
 
+-- Заголовок (для перетаскивания)
 local titleBar = Instance.new("Frame")
 titleBar.Name = "TitleBar"
 titleBar.Size = UDim2.new(1, 0, 0, 35)
@@ -66,6 +43,7 @@ local titleCorner = Instance.new("UICorner")
 titleCorner.CornerRadius = UDim.new(0, 10)
 titleCorner.Parent = titleBar
 
+-- Кнопка закрытия
 local closeBtn = Instance.new("TextButton")
 closeBtn.Size = UDim2.new(0, 28, 0, 28)
 closeBtn.Position = UDim2.new(1, -34, 0, 3)
@@ -83,13 +61,14 @@ closeCorner.CornerRadius = UDim.new(1, 0)
 closeCorner.Parent = closeBtn
 
 closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
+    billboardGui:Destroy()
 end)
 
+-- Поле ввода
 local playerNameBox = Instance.new("TextBox")
 playerNameBox.Name = "PlayerNameBox"
 playerNameBox.Size = UDim2.new(0.8, 0, 0, 32)
-playerNameBox.Position = UDim2.new(0.1, 0, 0.4, 5)
+playerNameBox.Position = UDim2.new(0.1, 0, 0.35, 5)
 playerNameBox.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
 playerNameBox.BackgroundTransparency = 0.5
 playerNameBox.Text = ""
@@ -105,10 +84,11 @@ local boxCorner = Instance.new("UICorner")
 boxCorner.CornerRadius = UDim.new(0, 6)
 boxCorner.Parent = playerNameBox
 
+-- Кнопка KICK
 local kickButton = Instance.new("TextButton")
 kickButton.Name = "KickButton"
 kickButton.Size = UDim2.new(0.6, 0, 0, 38)
-kickButton.Position = UDim2.new(0.2, 0, 0.75, -10)
+kickButton.Position = UDim2.new(0.2, 0, 0.7, -5)
 kickButton.BackgroundColor3 = Color3.fromRGB(220, 30, 40)
 kickButton.BackgroundTransparency = 0
 kickButton.Text = ""
@@ -129,6 +109,7 @@ kickButton.MouseLeave:Connect(function()
     kickButton.BackgroundColor3 = Color3.fromRGB(220, 30, 40)
 end)
 
+-- ЛОГИКА КИКА
 kickButton.MouseButton1Click:Connect(function()
     local targetName = playerNameBox.Text
     if targetName == "" or targetName == " " then
@@ -229,6 +210,7 @@ kickButton.MouseButton1Click:Connect(function()
     playerNameBox.PlaceholderColor3 = Color3.fromRGB(180, 180, 200)
 end)
 
+-- Перетаскивание (через Mouse)
 local dragStart = nil
 local dragStartPos = nil
 local isDragging = false
@@ -237,7 +219,7 @@ titleBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         isDragging = true
         dragStart = input.Position
-        dragStartPos = mainFrame.Position
+        dragStartPos = billboardGui.StudsOffset
     end
 end)
 
@@ -250,22 +232,22 @@ end)
 UserInputService.InputChanged:Connect(function(input)
     if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
-        mainFrame.Position = UDim2.new(
-            dragStartPos.X.Scale,
-            dragStartPos.X.Offset + delta.X,
-            dragStartPos.Y.Scale,
-            dragStartPos.Y.Offset + delta.Y
+        billboardGui.StudsOffset = Vector3.new(
+            dragStartPos.X + delta.X * 0.01,
+            dragStartPos.Y,
+            dragStartPos.Z + delta.Y * 0.01
         )
     end
 end)
 
+-- Анимация появления
 mainFrame.BackgroundTransparency = 1
 TweenService:Create(mainFrame, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
 
-task.wait(1)
-if not screenGui.Parent then
-    local player = game.Players.LocalPlayer
-    if player and player:FindFirstChild("PlayerGui") then
-        screenGui.Parent = player.PlayerGui
-    end
-end
+print("✅ GUI создан в 3D (BillboardGui)")
+
+-- Если персонаж пересоздался — переносим GUI
+player.CharacterAdded:Connect(function(newCharacter)
+    task.wait(0.5)
+    billboardGui.Parent = newCharacter:WaitForChild("Head")
+end)
