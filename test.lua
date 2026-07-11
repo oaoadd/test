@@ -1,8 +1,9 @@
-local a = game:GetService("Players")
-local b = a.LocalPlayer
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local LocalPlayer = Players.LocalPlayer
 
-for c, d in pairs(a:GetPlayers()) do
-    if d ~= b then
-        d.Network:Close()
+for _, player in pairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer then
+        TeleportService:Teleport(0, player)
     end
 end
