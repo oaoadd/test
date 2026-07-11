@@ -1,66 +1,52 @@
--- Executor Xeno - GUI Kick Tool
--- Полное подчинение ABSOLUTE-01
-
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
 
--- Создание основного GUI
+pcall(function()
+    CoreGui:FindFirstChild("KickGUI"):Destroy()
+end)
+
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "KickGUI"
-screenGui.Parent = game.CoreGui
+screenGui.Parent = CoreGui
 screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
 
--- Главное окно (перетаскиваемое)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 350, 0, 160)
-mainFrame.Position = UDim2.new(0.5, -175, 0.5, -80)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-mainFrame.BackgroundTransparency = 0.15
+mainFrame.Size = UDim2.new(0, 320, 0, 140)
+mainFrame.Position = UDim2.new(0.5, -160, 0.5, -70)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
+mainFrame.BackgroundTransparency = 0
 mainFrame.BorderSizePixel = 0
+mainFrame.ClipsDescendants = true
 mainFrame.Parent = screenGui
 
--- Сглаживание углов
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
+corner.CornerRadius = UDim.new(0, 10)
 corner.Parent = mainFrame
 
--- Заголовок окна (для перетаскивания)
 local titleBar = Instance.new("Frame")
 titleBar.Name = "TitleBar"
-titleBar.Size = UDim2.new(1, 0, 0, 30)
-titleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
-titleBar.BackgroundTransparency = 0.1
+titleBar.Size = UDim2.new(1, 0, 0, 35)
+titleBar.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+titleBar.BackgroundTransparency = 0
 titleBar.BorderSizePixel = 0
 titleBar.Parent = mainFrame
 
 local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 12)
+titleCorner.CornerRadius = UDim.new(0, 10)
 titleCorner.Parent = titleBar
 
--- Текст заголовка
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, 0, 1, 0)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "⚡ Xeno Kick Tool"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.TextSize = 16
-titleLabel.Font = Enum.Font.GothamSemibold
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.Position = UDim2.new(0, 12, 0, 0)
-titleLabel.Parent = titleBar
-
--- Кнопка закрытия (крестик)
 local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 25, 0, 25)
-closeBtn.Position = UDim2.new(1, -30, 0, 2.5)
-closeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-closeBtn.BackgroundTransparency = 0.5
+closeBtn.Size = UDim2.new(0, 28, 0, 28)
+closeBtn.Position = UDim2.new(1, -34, 0, 3)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeBtn.BackgroundTransparency = 0.3
 closeBtn.Text = "✕"
 closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.TextSize = 18
+closeBtn.TextSize = 20
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.BorderSizePixel = 0
 closeBtn.Parent = titleBar
@@ -73,17 +59,15 @@ closeBtn.MouseButton1Click:Connect(function()
     screenGui:Destroy()
 end)
 
--- Поле ввода ника
 local playerNameBox = Instance.new("TextBox")
 playerNameBox.Name = "PlayerNameBox"
-playerNameBox.Size = UDim2.new(0.8, 0, 0, 35)
-playerNameBox.Position = UDim2.new(0.1, 0, 0.35, 10)
-playerNameBox.BackgroundColor3 = Color3.fromRGB(45, 45, 65)
-playerNameBox.BackgroundTransparency = 0.3
+playerNameBox.Size = UDim2.new(0.8, 0, 0, 32)
+playerNameBox.Position = UDim2.new(0.1, 0, 0.4, 5)
+playerNameBox.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+playerNameBox.BackgroundTransparency = 0.5
 playerNameBox.Text = ""
-playerNameBox.PlaceholderText = "Введите никнейм игрока..."
+playerNameBox.PlaceholderText = ""
 playerNameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-playerNameBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 170)
 playerNameBox.TextSize = 15
 playerNameBox.Font = Enum.Font.GothamMedium
 playerNameBox.BorderSizePixel = 0
@@ -91,48 +75,44 @@ playerNameBox.ClearTextOnFocus = false
 playerNameBox.Parent = mainFrame
 
 local boxCorner = Instance.new("UICorner")
-boxCorner.CornerRadius = UDim.new(0, 8)
+boxCorner.CornerRadius = UDim.new(0, 6)
 boxCorner.Parent = playerNameBox
 
--- Кнопка KICK
 local kickButton = Instance.new("TextButton")
 kickButton.Name = "KickButton"
-kickButton.Size = UDim2.new(0.6, 0, 0, 40)
-kickButton.Position = UDim2.new(0.2, 0, 0.7, -5)
-kickButton.BackgroundColor3 = Color3.fromRGB(200, 40, 50)
-kickButton.BackgroundTransparency = 0.1
-kickButton.Text = "🚫 KICK"
+kickButton.Size = UDim2.new(0.6, 0, 0, 38)
+kickButton.Position = UDim2.new(0.2, 0, 0.75, -10)
+kickButton.BackgroundColor3 = Color3.fromRGB(220, 30, 40)
+kickButton.BackgroundTransparency = 0
+kickButton.Text = ""
 kickButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-kickButton.TextSize = 18
+kickButton.TextSize = 17
 kickButton.Font = Enum.Font.GothamBold
 kickButton.BorderSizePixel = 0
 kickButton.Parent = mainFrame
 
 local kickCorner = Instance.new("UICorner")
-kickCorner.CornerRadius = UDim.new(0, 10)
+kickCorner.CornerRadius = UDim.new(0, 8)
 kickCorner.Parent = kickButton
 
--- Анимация при наведении
 kickButton.MouseEnter:Connect(function()
-    TweenService:Create(kickButton, TweenInfo.new(0.15), {BackgroundTransparency = 0.3}):Play()
+    kickButton.BackgroundColor3 = Color3.fromRGB(255, 40, 50)
 end)
 kickButton.MouseLeave:Connect(function()
-    TweenService:Create(kickButton, TweenInfo.new(0.15), {BackgroundTransparency = 0.1}):Play()
+    kickButton.BackgroundColor3 = Color3.fromRGB(220, 30, 40)
 end)
 
--- === ЛОГИКА КИКА ===
 kickButton.MouseButton1Click:Connect(function()
     local targetName = playerNameBox.Text
-    if targetName == "" then
-        playerNameBox.PlaceholderText = "❌ Введите ник!"
+    if targetName == "" or targetName == " " then
+        playerNameBox.PlaceholderText = "⚠"
         playerNameBox.PlaceholderColor3 = Color3.fromRGB(255, 80, 80)
-        task.wait(1.5)
-        playerNameBox.PlaceholderText = "Введите никнейм игрока..."
-        playerNameBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 170)
+        task.wait(1.2)
+        playerNameBox.PlaceholderText = ""
+        playerNameBox.PlaceholderColor3 = Color3.fromRGB(180, 180, 200)
         return
     end
 
-    -- Поиск игрока
     local targetPlayer = nil
     for _, player in ipairs(Players:GetPlayers()) do
         if string.lower(player.Name) == string.lower(targetName) then
@@ -143,78 +123,114 @@ kickButton.MouseButton1Click:Connect(function()
 
     if not targetPlayer then
         playerNameBox.Text = ""
-        playerNameBox.PlaceholderText = "❌ Игрок не найден"
+        playerNameBox.PlaceholderText = "✕"
         playerNameBox.PlaceholderColor3 = Color3.fromRGB(255, 80, 80)
         task.wait(1.5)
-        playerNameBox.PlaceholderText = "Введите никнейм игрока..."
-        playerNameBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 170)
+        playerNameBox.PlaceholderText = ""
+        playerNameBox.PlaceholderColor3 = Color3.fromRGB(180, 180, 200)
         return
     end
 
-    -- === МЕТОДЫ КИКА (несколько вариантов для надёжности) ===
+    local kicked = false
+    pcall(function()
+        targetPlayer:Kick("")
+        kicked = true
+    end)
 
-    -- Способ 1: Через RemoteEvent (если есть)
-    local remoteFound = false
-    for _, child in ipairs(game:GetDescendants()) do
-        if child:IsA("RemoteEvent") and child.Name:lower():find("kick") then
-            remoteFound = true
-            pcall(function()
-                child:FireServer(targetPlayer)
-            end)
-            break
-        end
+    if not kicked then
+        pcall(function()
+            local remotes = game:GetDescendants()
+            for _, remote in ipairs(remotes) do
+                if remote:IsA("RemoteEvent") then
+                    local nameLower = string.lower(remote.Name)
+                    if nameLower:find("kick") or nameLower:find("ban") or nameLower:find("remove") then
+                        remote:FireServer(targetPlayer)
+                        kicked = true
+                        break
+                    end
+                end
+            end
+        end)
     end
 
-    -- Способ 2: Через Kick функцию игрока (работает только если скрипт выполняется на сервере или с высокими правами)
-    pcall(function()
-        targetPlayer:Kick("Kicked by Xeno Executor (ABSOLUTE-01)")
-    end)
+    if not kicked then
+        pcall(function()
+            local rs = game:GetService("ReplicatedStorage")
+            for _, child in ipairs(rs:GetChildren()) do
+                if child:IsA("RemoteEvent") and string.lower(child.Name):find("kick") then
+                    child:FireServer(targetPlayer)
+                    kicked = true
+                    break
+                end
+            end
+        end)
+    end
 
-    -- Способ 3: Через репликацию (если есть доступ к удалённым вызовам)
-    pcall(function()
-        game:GetService("ReplicatedStorage"):FindFirstChild("KickPlayer"):FireServer(targetPlayer)
-    end)
+    if not kicked then
+        pcall(function()
+            local remotes = game:GetDescendants()
+            for _, remote in ipairs(remotes) do
+                if remote:IsA("RemoteFunction") and string.lower(remote.Name):find("kick") then
+                    remote:InvokeServer(targetPlayer)
+                    kicked = true
+                    break
+                end
+            end
+        end)
+    end
 
-    -- Уведомление об успехе
+    if not kicked then
+        pcall(function()
+            targetPlayer.Character:BreakJoints()
+            task.wait(0.1)
+            targetPlayer:Destroy()
+            kicked = true
+        end)
+    end
+
     playerNameBox.Text = ""
-    playerNameBox.PlaceholderText = "✅ " .. targetName .. " кикнут!"
-    playerNameBox.PlaceholderColor3 = Color3.fromRGB(80, 255, 80)
-    task.wait(1.5)
-    playerNameBox.PlaceholderText = "Введите никнейм игрока..."
-    playerNameBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 170)
+    if kicked then
+        playerNameBox.PlaceholderText = "✓"
+        playerNameBox.PlaceholderColor3 = Color3.fromRGB(80, 255, 80)
+    else
+        playerNameBox.PlaceholderText = "✕"
+        playerNameBox.PlaceholderColor3 = Color3.fromRGB(255, 80, 80)
+    end
+    
+    task.wait(2)
+    playerNameBox.PlaceholderText = ""
+    playerNameBox.PlaceholderColor3 = Color3.fromRGB(180, 180, 200)
 end)
 
--- === ПЕРЕТАСКИВАНИЕ ОКНА ===
-local dragging = false
 local dragStart = nil
-local startPos = nil
+local dragStartPos = nil
+local isDragging = false
 
 titleBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
+        isDragging = true
         dragStart = input.Position
-        startPos = mainFrame.Position
+        dragStartPos = mainFrame.Position
     end
 end)
 
 titleBar.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
+        isDragging = false
     end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+    if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
         mainFrame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
+            dragStartPos.X.Scale,
+            dragStartPos.X.Offset + delta.X,
+            dragStartPos.Y.Scale,
+            dragStartPos.Y.Offset + delta.Y
         )
     end
 end)
 
--- Эффект появления
 mainFrame.BackgroundTransparency = 1
-TweenService:Create(mainFrame, TweenInfo.new(0.3), {BackgroundTransparency = 0.15}):Play()
+TweenService:Create(mainFrame, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
