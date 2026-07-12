@@ -1,69 +1,32 @@
--- Xeno Executor Script
-local a = game:GetService("Players")
-local b = a.LocalPlayer
-local c = b.Character or b.CharacterAdded:Wait()
-local d = c:WaitForChild("Humanoid")
-
-local function e()
-    local f = c:Clone()
-    local g = f:FindFirstChild("Humanoid")
-    if g then
-        g:Destroy()
-    end
-    for _, h in ipairs(f:GetDescendants()) do
-        if h:IsA("BasePart") then
-            h.Anchored = false
-        end
-    end
-    return f
+local a=game.Players.LocalPlayer
+local b=a.Character or a.CharacterAdded:Wait()
+local c=b:WaitForChild("Humanoid")
+local d=b:WaitForChild("HumanoidRootPart")
+local e=game:GetService("UserInputService")
+local f=8
+local g=0.1
+local h=0
+e.InputBegan:Connect(function(i,j)
+if j then return end
+if i.KeyCode==Enum.KeyCode.Space then
+local k=tick()
+if k-h>=g then
+h=k
+local l=RaycastParams.new()
+l.FilterDescendantsInstances={b}
+l.FilterType=Enum.RaycastFilterType.Blacklist
+local m={d.CFrame.LookVector,-d.CFrame.LookVector,d.CFrame.RightVector,-d.CFrame.RightVector}
+local n=2.5
+local o=false
+for _,p in ipairs(m) do
+local q=d.Position+Vector3.new(0,1,0)
+local r=workspace:Raycast(q,p*n,l)
+if r then o=true break end
 end
-
-local function i(j)
-    local k = e()
-    k.Parent = workspace
-    local l = k:FindFirstChild("HumanoidRootPart")
-    if not l then
-        for _, m in ipairs(k:GetChildren()) do
-            if m:IsA("BasePart") then
-                l = m
-                break
-            end
-        end
-    end
-    if l then
-        k:SetPrimaryPartCFrame(CFrame.new(j))
-    end
-    return k
+if o and c and c.Health>0 then
+local s=d.AssemblyLinearVelocity
+d.AssemblyLinearVelocity=Vector3.new(s.X,f,s.Z)
 end
-
-local n = 50
-local o = 0
-local p = 1000
-
-for q = 1, p do
-    local r = (q / p) * math.pi * 10
-    local s = (q / p) * n
-    local t = math.cos(r) * s
-    local u = math.sin(r) * s
-    local v = 3
-    local w = Vector3.new(t, v, u) + c.PrimaryPart.Position
-    i(w)
-    o = o + 1
-    if o % 100 == 0 then
-    end
-    task.wait(0.01)
 end
-
-local x = Instance.new("ScreenGui")
-x.Parent = b.PlayerGui
-local y = Instance.new("TextLabel")
-y.Size = UDim2.new(0, 400, 0, 100)
-y.Position = UDim2.new(0.5, -200, 0.5, -50)
-y.BackgroundColor3 = Color3.new(0, 0, 0)
-y.BackgroundTransparency = 0.5
-y.TextColor3 = Color3.new(1, 1, 1)
-y.Text = ""
-y.TextScaled = true
-y.Parent = x
-task.wait(5)
-x:Destroy()
+end
+end)
